@@ -35,7 +35,7 @@ For example:-
 		import importlib  # for importing nst again without restarting IDE
 		import nst
 		 
-5. The final out put will be stored in the folder `nst_output`You can tweak the parameters like, content, style images, style layers, no. of iterations, content layer etc in the CONFIGURE class defined at the start of nst.py :
+5. The final output will be stored in the folder `nst_output`You can tweak the parameters like, content, style images, style layers, no. of iterations, content layer etc in the CONFIGURE class defined at the start of nst.py :
 
         class CONFIGURE:
           content_path ='images/content/my_pic.jpg'
@@ -51,3 +51,21 @@ For example:-
           num_iterations = 1001
           learning_rate = 1.0
           output_folder = 'nst_output/'	 
+          
+6. To re-import the module use `nst= importlib.reload(nst)`    
+
+---
+# References:
+
+The Neural Style Transfer algorithm was due to Gatys et al. (2015). Harish Narayanan and Github user "log0" also have highly readable write-ups. The pre-trained network used in this implementation is a VGG network, which is due to Simonyan and Zisserman (2015). Pre-trained weights were from the work of the MathConvNet team.
+
+**NOTE**
+
+> The VGG-19 architecture uses maxpool layers, but in this implementation maxpool layers are replaced by averagepool layers as it generates more aesthetically pleasing results 
+
+- Leon A. Gatys, Alexander S. Ecker, Matthias Bethge, (2015). [A Neural Algorithm of Artistic Style](https://arxiv.org/abs/1508.06576) 
+- Harish Narayanan, [Convolutional neural networks for artistic style transfer.](https://harishnarayanan.org/writing/artistic-style-transfer/)
+- Log0, [TensorFlow Implementation of "A Neural Algorithm of Artistic Style".](http://www.chioka.in/tensorflow-implementation-neural-algorithm-of-artistic-style)
+- Karen Simonyan and Andrew Zisserman (2015). [Very deep convolutional networks for large-scale image recognition](https://arxiv.org/pdf/1409.1556.pdf)
+- [MatConvNet.](http://www.vlfeat.org/matconvnet/pretrained/)
+      
