@@ -8,7 +8,7 @@ print('Libraries imported successfully')
 
 
 class CONFIGURE:
-  content_path ='images/content/benu.jpg'
+  content_path ='images/content/my_pic.jpg'
   style_path ='images/style/rembrandt.jpg'
   STYLE_LAYERS = [
     ('conv1_2', 0.7),
