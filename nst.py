@@ -7,6 +7,22 @@ import matplotlib.pyplot as plt
 print('Libraries imported successfully')
 
 
+class CONFIGURE:
+  content_path ='images/content/benu.jpg'
+  style_path ='images/style/rembrandt.jpg'
+  STYLE_LAYERS = [
+    ('conv1_2', 0.7),
+    ('conv2_2', 0.2),
+    ('conv3_4', 0.05),
+    ('conv4_4', 0.025),
+    ('conv5_4', 0.025)]
+  # use last layers for style
+  content_cost_layer = 'conv4_4'   # conv4_4
+  num_iterations = 1001
+  learning_rate = 1.0
+  output_folder = 'nst_output/'
+
+
 def content_cost(a_C, a_G):
     """
     Computes content cost for the generated image wrt to the content image
@@ -65,12 +81,8 @@ def style_cost(a_S, a_G):
 # We'll be using multiple hidden layers for calculating style cost for better results
 # differnet weights are assigned to different layers
 
-STYLE_LAYERS = [
-    ('conv1_1', 0.1),
-    ('conv2_1', 0.1),
-    ('conv3_1', 0.2),
-    ('conv4_1', 0.2),
-    ('conv5_1', 0.4)]
+# og weights : 0.2 each layer
+STYLE_LAYERS = CONFIGURE.STYLE_LAYERS
 
 
 # compute style cost over all the layers specified by STYLE_LAYERS
@@ -104,8 +116,11 @@ tf.reset_default_graph()
 sess=tf.InteractiveSession()
 
 # Load our style and content images (also reshaping and normalizing them for our vgg model
-content_image, content_input_to_vgg = load_image('images/content/my_pic.jpg')
-style_image, style_input_to_vgg = load_image('images/style/starry-night-van-gogh.jpg')
+content_path = CONFIGURE.content_path
+style_path = CONFIGURE.style_path
+out_file_name=content_path.split('/')[-1].split('.')[0]+'_'+style_path.split('/')[-1].split('.')[0]
+content_image, content_input_to_vgg = load_image(content_path)
+style_image, style_input_to_vgg = load_image(style_path)
 
 # Create generated image
 generated_image = generate_noise_image(content_input_to_vgg, noise_ratio=0.6)
@@ -119,7 +134,7 @@ print('\n\nCreating content_cost graph')
 # setting content image as input to the pretrained model
 sess.run(model['input'].assign(content_input_to_vgg))
 # Using conv4_2 layer for calculating content cost
-out = model['conv4_2']
+out = model[CONFIGURE.content_cost_layer]
 a_C = sess.run(out) # evaluated for content image
 a_G = out  # not yet evaluated for generated image
 J_content = content_cost(a_C, a_G)
@@ -135,17 +150,17 @@ J_total = total_cost(J_content, J_style)
 print('Total cost graph also created')
 
 # Choose an optimizer with a learning rate
-optimizer = tf.train.AdamOptimizer(2.0)
+optimizer = tf.train.AdamOptimizer(CONFIGURE.learning_rate)  # og rate : 2.0
 train_step = optimizer.minimize(J_total)
 
 # Initialize variables
 sess.run(tf.global_variables_initializer())
 # set generated_noise image as input to our model
 sess.run(model['input'].assign(generated_image))
-num_iterations =201
+final_iteration_value = CONFIGURE.num_iterations - 1
 
 print('\n\nTraining the model now.....')
-for i in range(num_iterations):
+for i in range(CONFIGURE.num_iterations):
     sess.run(train_step)
     # print costs for every 20 iterations
     if i%20==0:
@@ -154,14 +169,15 @@ for i in range(num_iterations):
         print('Content Cost : {}'.format(Jc))
         print('Style Cost : {}'.format(Js))
         print('Total Cost : {}'.format(Jt))
+    if i==final_iteration_value:
         painted_image = sess.run(model['input'])  # numpy form (1,300,400,3)
         painted_image = painted_image + CONFIG.means  # un-normalize
         clipped_img = np.clip(painted_image[0],0,255).astype('uint8') # for imshow
         image = Image.fromarray(clipped_img)
-        image.save('nst_output/{}.jpg'.format(i))
+        image.save(CONFIGURE.output_folder+'{}.jpg'.format(out_file_name))
 
-
-
+# Close the interactive session
+sess.close()
 
 
 
@@ -171,4 +187,3 @@ for i in range(num_iterations):
 #axes[0].imshow(content_image)
 #axes[1].set_title('Style Image')
 #axes[1].imshow(style_image)
-
